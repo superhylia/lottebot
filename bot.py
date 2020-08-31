@@ -17,6 +17,8 @@ from ext.database import DatabaseManager
 from ext.state import ConnState
 from ext.utils import format_timedelta
 
+bot = commands.Bot(activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
+
 class rainbot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=None)
@@ -89,9 +91,6 @@ class rainbot(commands.Bot):
     async def on_ready(self):
         self.logger.info('Ready')
         self.logger.debug('Debug mode ON: Prefix ./')
-
-bot = commands.Bot(activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
-    async def on_ready():
     
     async def on_command_error(self, ctx, e):
         e = getattr(e, 'original', e)
