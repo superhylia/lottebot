@@ -89,6 +89,9 @@ class rainbot(commands.Bot):
         self.logger.info('Ready')
         self.logger.debug('Debug mode ON: Prefix ./')
 
+    async def change_status(self):
+        await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
+
     async def on_command_error(self, ctx, e):
         e = getattr(e, 'original', e)
         ignored = (
@@ -214,9 +217,6 @@ class rainbot(commands.Bot):
             pull['$pull']['mutes']['time'] = duration
         await self.db.update_guild_config(guild_id, pull)
         
-    async def change_status(self):
-         await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
-
 if __name__ == '__main__':
     load_dotenv()
     rainbot()
