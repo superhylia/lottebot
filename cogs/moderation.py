@@ -328,36 +328,26 @@ class Moderation(commands.Cog):
 
         await ctx.send(f'Deleted {limit - count} messages', delete_after=3)
         await self.send_log(ctx, limit - count, member)
-
-    @command(6, name='server', aliases=['serverwide', 'everything'])
-    async def lockdown(self, ctx, channel: discord.TextChannel=None):
-        """Locks down the entire server and prevents people from typing."""
-        channel = channel or ctx.channel
-        overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
-
-        if overwrite.send_messages is None or overwrite.send_messages:
-           overwrite.send_messages = False
-               await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-               await ctx.send(f'The channel has been locked. {self.bot.accept}')
-               enable = True
-
-        await self.send_log(ctx, enable, channel)
-    
-    @lockdown.command(6, aliases=['lock', 'closedown'])
+ 
+    @command(6, aliases=['lock', 'closedown'])
     async def lockdown(self, ctx, channel: discord.TextChannel=None):
         """Locks a channel and prevents people from typing."""
         channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
-
+         
         if overwrite.send_messages is None or overwrite.send_messages:
-           overwrite.send_messages = False 
-               await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-               await ctx.send(f'The channel has been locked. {self.bot.accept}')
-               enable = True
+            overwrite.send_messages = False
+            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+            await ctx.send(f'Lockdown {self.bot.accept}')
+            enable = True
+        else:
+            # dont change to "not overwrite.send_messages"
+            overwrite.send_messages = None
+            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+            await ctx.send(f'Un-lockdown {self.bot.accept}')
+            enable = False
 
         await self.send_log(ctx, enable, channel)
-
-
 
      @command(6, aliases=['unlockdown'])
      async def unlock(self, ctx, channel: discord.TextChannel=None):
@@ -365,10 +355,18 @@ class Moderation(commands.Cog):
         channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
 
-        await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-        await ctx.send(f'The channel has been unlocked. {self.bot.accept}')
-        enable = False
-        
+       if overwrite.send_messages is None or overwrite.send_messages:
+            overwrite.send_messages = None
+            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+            await ctx.send(f'Lockdown {self.bot.accept}')
+            enable = False
+       else:
+            # dont change to "not overwrite.send_messages"
+            overwrite.send_messages = False
+            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+            await ctx.send(f'Un-lockdown {self.bot.accept}')
+            enable = True
+  
         await self.send_log(ctx, enable, channel)
 
     @command(6, usage='[duration] [channel]')
