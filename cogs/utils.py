@@ -16,7 +16,7 @@ from ext.utils import get_perm_level, get_command_level, owner
 
 
 class Utility(commands.Cog):
-    """General utility commands"""
+    """General utility commands."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -25,7 +25,7 @@ class Utility(commands.Cog):
     @owner()
     @command(0, name='eval')
     async def _eval(self, ctx, *, body):
-        """Evaluates python code"""
+        """Evaluates Python code."""
         env = {
             'ctx': ctx,
             'self': self,
@@ -114,7 +114,7 @@ class Utility(commands.Cog):
     @owner()
     @command(0, name='exec')
     async def _exec(self, ctx, *, command):
-        """Executes code in the command line"""
+        """Executes code in the command line."""
         cmd = subprocess.run(command, cwd=os.getcwd(), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         err = cmd.stderr.decode('utf-8')
         res = cmd.stdout.decode('utf-8')
@@ -128,13 +128,13 @@ class Utility(commands.Cog):
     @owner()
     @command(0)
     async def update(self, ctx):
-        """Updates the bot"""
+        """Updates the bot."""
         # command fetches from git, gets a list of updated file in stdout, merges updated into local
         cmd = subprocess.run('git fetch && git diff --name-only ..origin && git merge FETCH_HEAD -q', cwd=os.getcwd(), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         res = cmd.stdout.decode('utf-8')
 
         if res == '':
-            await ctx.send('Already up to date.')
+            await ctx.send('Good news! Lotte is already up to date.')
         else:
             # Something other than a cog is modified
             for fn in res.splitlines():
@@ -216,7 +216,7 @@ class Utility(commands.Cog):
 
     @command(0, name='help')
     async def help_(self, ctx, *, command_or_cog=None, error=None):
-        """Shows the help message"""
+        """Shows the help message."""
         if error:
             error = await commands.clean_content(escape_markdown=True).convert(ctx, str(error))
             error = f'{self.bot.deny} `{error}`'
@@ -244,9 +244,9 @@ class Utility(commands.Cog):
 
             await Paginator(ctx, *ems).start()
 
-    @command(0)
+    @command(0, aliases=['info', 'lotte'])
     async def about(self, ctx):
-        """About rainbot"""
+        """What is Lotte?"""
         await ctx.send('**What is Lottebot?**\nLotte is a custom moderation bot created by superhylia for the LoWFi Discord server. Its a modified and customized version of rainbot, a custom moderation bot!\nCheck out <https://github.com/fourjr/rainbot/wiki/About> for more information on rainbot.\n\n')
 
     @command(0)
