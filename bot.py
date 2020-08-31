@@ -16,11 +16,8 @@ from ext.database import DatabaseManager
 from ext.state import ConnState
 from ext.utils import format_timedelta
 
-bot = discord.Client()
-
-@bot.event()
-async def change_status(self):
-         await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
+activity = discord.Activity(name='my activity', type=discord.ActivityType.watching)
+await client.change_presence(activity="over the server! • !help"))
 
 
 class rainbot(commands.Bot):
