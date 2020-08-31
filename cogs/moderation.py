@@ -348,7 +348,24 @@ class Moderation(commands.Cog):
             enable = False
 
         await self.send_log(ctx, enable, channel)
+     
+    @lockdown.command(6, aliases=['serverwide', 'everything'])
+    async def server(self, ctx, channel: discord.TextChannel=None):
+        """Lock/unlock the server."""
     
+        for channel in guild.channels:
+            if overwrite.send_messages is None or overwrite.send_messages:
+                overwrite.send_messages = False
+                await channel.set_permissions(cts.guild.default_role, overwrite=overwrite)
+                await ctx.send(f'The server has been locked. {self.bot.accept}')
+                enable = True
+            else:
+                # dont change to "not overwrite.send_messages"
+                overwrite.send_messages = None
+                await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+                await ctx.send(f'The server has been unlocked. {self.bot.accept}')
+                enable = False
+
     @command(6, usage='[duration] [channel]')
     async def slowmode(self, ctx, *, time: UserFriendlyTime(converter=commands.TextChannelConverter, default=False, assume_reason=True)):
         """Enables slowmode in the specified channel. Max. 6h period.
