@@ -329,7 +329,7 @@ class Moderation(commands.Cog):
         await ctx.send(f'Deleted {limit - count} messages', delete_after=3)
         await self.send_log(ctx, limit - count, member)
  
-    @group(6, invoke_without_command=True)
+    @group(6, invoke_without_command=True, usage='')
     async def lockdown(self, ctx, channel: discord.TextChannel=None):
         """Lockdown channels or the server."""
         await ctx.invoke(self.bot.get_command('help'), command_or_cog='lockdown')
