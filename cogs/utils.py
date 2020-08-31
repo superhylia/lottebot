@@ -247,7 +247,37 @@ class Utility(commands.Cog):
     @command(0)
     async def about(self, ctx):
         """About rainbot"""
-        await ctx.send('**What is rainbot?**\nrainbot is an full-fledged custom moderation bot!\nLook at <https://github.com/fourjr/rainbot/wiki/About> for more information.\n\nInvite: <https://discord.com/oauth2/authorize?client_id=372748944448552961&scope=bot&permissions=2013785334>\nSupport Server: https://discord.gg/eXrDpGS')
+        await ctx.send('**What is Lottebot?**\nLotte is a custom moderation bot created by superhylia for the LoWFi Discord server. Its a modified and customized version of rainbot, a custom moderation bot!\nCheck out <https://github.com/fourjr/rainbot/wiki/About> for more information on rainbot.\n\n')
+
+    @command(0)
+    async def userinfo(self, ctx, member: discord.Member):
+        """Get a user's info."""
+        async def timestamp(created):
+            delta = format_timedelta(ctx.message.created_at - created)
+            guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
+            created += timedelta(hours=guild_config.time_offset)
+
+            return f"{delta} ago ({created.strftime('%H:%M:%S')})"
+
+        created = await timestamp(member.created_at)
+        joined = await timestamp(member.joined_at)
+        member_info = f'**Joined** {joined}\n'
+
+        for n, i in enumerate(reversed(member.roles)):
+            if i != ctx.guild.default_role:
+                if n == 0:
+                    member_info += '**Roles**: '
+                member_info += i.name
+                if n != len(member.roles) - 2:
+                    member_info += ', '
+                else:
+                    member_info += '\n'
+
+        em = discord.Embed(color=member.color)
+        em.set_author(name=member, icon_url=member.avatar_url)
+        em.add_field(name='Basic Information', value=f'**ID**: {member.id}\n**Nickname**: {member.nick}\n**Mention**: {member.mention}\n**Created** {created}', inline=False)
+        em.add_field(name='Member Information', value=member_info, inline=False)
+        await ctx.send(embed=em)
 
     @command(0)
     async def invite(self, ctx):
@@ -256,7 +286,7 @@ class Utility(commands.Cog):
 
     @command(0)
     async def mylevel(self, ctx):
-        """Checks your permission level"""
+        """Checks your permission level."""
         perm_level = get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))
         await ctx.send(f'You are on level {perm_level[0]} ({perm_level[1]})')
 
