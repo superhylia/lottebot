@@ -115,11 +115,11 @@ class Giveaways(commands.Cog):
         await giveaway.edit(embed=new_embed)
         await self.bot.db.update_guild_config(giveaway.guild.id, {'$set': {'giveaway.message_id': None}})
 
-    @command(10, aliases=['set-giveaway' 'set_giveaway'])
-    async def setgiveaway(self, ctx, emoji: EmojiOrUnicode, channel: discord.TextChannel, role=None):
+    @giveaway.command(10, aliases=['setgiveaway', 'configure'])
+    async def set(self, ctx, emoji: EmojiOrUnicode, channel: discord.TextChannel, role=None):
         """Sets up giveaways.
 
-        Role can be @everyone, @here or none"""
+        The set role can be @everyone, @here, none, or any other role on the server."""
         if role == 'none' or role is None:
             role_id = None
         elif role in ('@everyone', '@here'):
@@ -142,7 +142,7 @@ class Giveaways(commands.Cog):
 
     @giveaway.command(8, usage='<endtime> <winners> <description>')
     async def create(self, ctx, *, time: UserFriendlyTime):
-        """Create a giveaway
+        """Create a giveaway!
 
         Example: `!giveaway create 3 days 5 $10USD`
         """
@@ -157,7 +157,7 @@ class Giveaways(commands.Cog):
                 # Check if the giveaway exusts
                 guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
                 if not guild_config.giveaway.channel_id:
-                    return await ctx.invoke(self.bot.get_command('help'), command_or_cog='setgiveaway', error=Exception('Setup giveaways with setgiveaway first.'))
+                    return await ctx.invoke(self.bot.get_command('help'), command_or_cog='setgiveaway', error=Exception('Setup giveaways with !giveaway set first.'))
 
                 if not time.arg:
                     raise commands.BadArgument('Converting to "str" failed for parameter "description".')
@@ -183,12 +183,7 @@ class Giveaways(commands.Cog):
                 await message.add_reaction(emoji)
 
                 await self.bot.db.update_guild_config(ctx.guild.id, {'$set': {'giveaway.message_id': str(message.id)}})
-
-                await ctx.send(f'Created: {message.jump_url}')
-                self.bot.loop.create_task(self.queue_roll(message))
-            else:
-                await ctx.send('A giveaway already exists. Please wait until the current one expires.')
-
+ 
     @giveaway.command(6, aliases=['stat', 'statistics'])
     async def stats(self, ctx):
         """View statistics of the latest giveaway"""
@@ -259,13 +254,13 @@ class Giveaways(commands.Cog):
                 try:
                     winners = await self.roll_winner(ctx)
                 except ValueError:
-                    await ctx.send('Not enough participants :(')
+                    await ctx.send('No one participated? Oh well, more stuff for me.')
                 else:
                     fmt_winners = '\n'.join({i.mention for i in winners})
                     description = '\n'.join(latest_giveaway.embeds[0].description.split('\n')[1:])
                     await ctx.send(f"Congratulations! Here are the **rerolled** winners for `{description}` <a:bahrooHi:402250652996337674>\n{fmt_winners}")
             else:
-                await ctx.send('No active giveaway')
+                await ctx.send('No active giveaway!')
 
     @giveaway.command(6)
     async def stop(self, ctx):
