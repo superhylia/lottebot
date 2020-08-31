@@ -17,7 +17,7 @@ from ext.database import DatabaseManager
 from ext.state import ConnState
 from ext.utils import format_timedelta
 
-bot = commands.Bot(command_prefix = prefix)
+bot = commands.Bot(command_prefix)
 
 class rainbot(commands.Bot):
     def __init__(self):
