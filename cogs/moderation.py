@@ -342,19 +342,6 @@ class Moderation(commands.Cog):
             enable = True
       
         await self.send_log(ctx, enable, channel)
-
-    @lockdown.command(6, aliases=['serverwide', 'everything'])
-    async def server_(self):
-        """Locks down all channels in the server."""
-            
-        for channel in guild.channels
-            overwrite.send_messages = False
-            await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-            await ctx.send(f'The server is locked down. {self.bot.accept}')
-            enable = True
-
-        await self.send_log(ctx, enable, channel)
-
  
     @command(6, aliases=['unlock', 'opendown'])
     async def unlockdown(self, ctx, channel: discord.TextChannel=None):
@@ -370,18 +357,6 @@ class Moderation(commands.Cog):
 
          await self.send_log(ctx, enable, channel)
 
-    @unlockdown.command(6, aliases=['serverwide', 'everything'])
-    async def server_(self):
-        """Unlocks all channels in the server."""
-            
-         for channel in guild.channels
-             overwrite.send_messages = None
-             await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-             await ctx.send(f'The server is unlocked. {self.bot.accept}')
-                enable = True
-
-         await self.send_log(ctx, enable, channel)
-   
     @command(6, usage='[duration] [channel]')
     async def slowmode(self, ctx, *, time: UserFriendlyTime(converter=commands.TextChannelConverter, default=False, assume_reason=True)):
         """Enables slowmode in the specified channel. Max. 6h period.
