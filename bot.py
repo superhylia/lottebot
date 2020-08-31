@@ -21,8 +21,8 @@ class rainbot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=None)
 
-        self.accept = '<:check:684169254618398735>'
-        self.deny = '<:xmark:684169254551158881>'
+        self.accept = '<:checkmark:749840319255937124>'
+        self.deny = '\u{274c}'
         self.dev_mode = os.name == 'nt'
 
         # Set up logging
@@ -100,7 +100,7 @@ class rainbot(commands.Bot):
         if isinstance(e, (commands.UserInputError, errors.BotMissingPermissionsInChannel)):
             await ctx.invoke(self.get_command('help'), command_or_cog=ctx.command.qualified_name, error=e)
         elif isinstance(e, discord.Forbidden):
-            await ctx.invoke(self.get_command('help'), command_or_cog=ctx.command.qualified_name, error=Exception('Bot has insufficient permissions'))
+            await ctx.invoke(self.get_command('help'), command_or_cog=ctx.command.qualified_name, error=Exception('The bot has insufficient permissions.'))
         elif isinstance(e, ignored) and not self.dev_mode:
             pass
         else:
@@ -116,7 +116,7 @@ class rainbot(commands.Bot):
         self.mutes = await self.db.coll.find({'mutes': {'$exists': True, '$ne': []}})
 
     async def on_member_join(self, m):
-        """Set up mutes if the member rejoined to bypass a mute"""
+        """Set up mutes if the member rejoined to bypass a mute."""
         if not self.dev_mode:
             guild_config = await self.db.get_guild_config(m.guild.id)
             mutes = guild_config.mutes
@@ -130,7 +130,7 @@ class rainbot(commands.Bot):
                 self.mute(m, user_mute['time'] - time(), 'Mute evasion', modify_db=False)
 
     async def mute(self, member, delta, reason, modify_db=True):
-        """Mutes a ``member`` for ``delta`` seconds"""
+        """Mutes a ``member`` for ``delta`` seconds."""
         guild_config = await self.db.get_guild_config(member.guild.id)
         mute_role = discord.utils.get(member.guild.roles, id=int(guild_config.mute_role or 0))
         if not mute_role:
@@ -139,16 +139,16 @@ class rainbot(commands.Bot):
             if not mute_role:
                 # existing mute role not found, let's create one
                 mute_role = await member.guild.create_role(
-                    name='Muted', color=discord.Color(0x818689), reason='Attempted to mute user but role did not exist'
+                    name='Muted', color=discord.Color(0x818689), reason='Attempted to mute user, but the role did not exist.'
                 )
                 for c in member.guild.text_channels:
                     try:
-                        await c.set_permissions(mute_role, send_messages=False, reason='Attempted to mute user but role did not exist')
+                        await c.set_permissions(mute_role, send_messages=False, reason='Attempted to mute user, but the role did not exist.')
                     except discord.Forbidden:
                         pass
                 for c in member.guild.voice_channels:
                     try:
-                        await c.set_permissions(mute_role, speak=False, reason='Attempted to mute user but role did not exist')
+                        await c.set_permissions(mute_role, speak=False, reason='Attempted to mute user, but the role did not exist.')
                     except discord.Forbidden:
                         pass
 
@@ -164,7 +164,7 @@ class rainbot(commands.Bot):
             current_time += timedelta(hours=offset)
             current_time = current_time.strftime('%H:%M:%S')
 
-            await log_channel.send(f"`{current_time}` Member {member} ({member.id}) has been muted for reason: {reason} for {format_timedelta(delta)}")
+            await log_channel.send(f"`{current_time}` {member} ({member.id}) has been muted for {format_timedelta(delta)} for: {reason}")
 
         if delta:
             duration = delta.total_seconds()
@@ -207,7 +207,7 @@ class rainbot(commands.Bot):
                         await log_channel.send(f"`{current_time}` {member} ({member.id}) has been unmuted. Reason: {reason}")
             else:
                 if log_channel:
-                    await log_channel.send(f"`{current_time}` Tried to unmute {member} ({member.id}), member not in server")
+                    await log_channel.send(f"`{current_time}` Attempted to unmute {member} ({member.id}), but the member is not in the server.")
 
         # set db
         pull = {'$pull': {'mutes': {'member': str(member_id)}}}
