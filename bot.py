@@ -17,6 +17,9 @@ from ext.database import DatabaseManager
 from ext.state import ConnState
 from ext.utils import format_timedelta
 
+@bot.event
+async def on_ready():
+    await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
 
 class rainbot(commands.Bot):
     def __init__(self):
@@ -215,10 +218,6 @@ class rainbot(commands.Bot):
         if duration is not None:
             pull['$pull']['mutes']['time'] = duration
         await self.db.update_guild_config(guild_id, pull)
-
-@bot.event
-async def on_ready():
-    await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
 
 if __name__ == '__main__':
     load_dotenv()
