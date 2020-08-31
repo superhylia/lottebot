@@ -22,7 +22,7 @@ class rainbot(commands.Bot):
         super().__init__(command_prefix=None)
 
         self.accept = '<:checkmark:749840319255937124>'
-        self.deny ='\u{274c}'
+        self.deny = '<:xmark:749850742231400568>'
         self.dev_mode = os.name == 'nt'
 
         # Set up logging
