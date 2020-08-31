@@ -329,8 +329,9 @@ class Moderation(commands.Cog):
         await ctx.send(f'Deleted {limit - count} messages', delete_after=3)
         await self.send_log(ctx, limit - count, member)
  
-    @command(6, aliases=['lock', 'closedown'])
+    @command(6, aliases=['lock', 'closedown', 'unlock', 'unlockdown'])
     async def lockdown(self, ctx, channel: discord.TextChannel=None):
+        """Lock/unlock a specified channel."""
         channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
 
