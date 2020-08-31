@@ -9,6 +9,7 @@ from time import time
 
 import aiohttp
 from discord.ext import commands
+from discord.ext import commands import bot
 from dotenv import load_dotenv
 
 from ext import errors
@@ -215,6 +216,9 @@ class rainbot(commands.Bot):
             pull['$pull']['mutes']['time'] = duration
         await self.db.update_guild_config(guild_id, pull)
 
+@bot.event
+async def on_ready():
+    await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
 
 if __name__ == '__main__':
     load_dotenv()
