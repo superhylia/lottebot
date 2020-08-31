@@ -9,16 +9,13 @@ from time import time
 
 import aiohttp
 from discord.ext import commands
+from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
 from ext import errors
 from ext.database import DatabaseManager
 from ext.state import ConnState
 from ext.utils import format_timedelta
-
-activity = discord.Activity(name='my activity', type=discord.ActivityType.watching)
-await client.change_presence(activity="over the server! • !help"))
-
 
 class rainbot(commands.Bot):
     def __init__(self):
@@ -93,8 +90,8 @@ class rainbot(commands.Bot):
         self.logger.info('Ready')
         self.logger.debug('Debug mode ON: Prefix ./')
 
-    async def change_status(self):
-        await bot.change_presence(activity=discord.watching(name="over the server! • !help"))
+    async def on_ready():
+        await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
 
     async def on_command_error(self, ctx, e):
         e = getattr(e, 'original', e)
