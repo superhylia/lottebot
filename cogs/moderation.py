@@ -86,36 +86,6 @@ class Moderation(commands.Cog):
             # channel not found [None.send()]
             pass
 
-    @command(5)
-    async def userinfo(self, ctx, member: discord.Member):
-        """Get a user's info."""
-        async def timestamp(created):
-            delta = format_timedelta(ctx.message.created_at - created)
-            guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
-            created += timedelta(hours=guild_config.time_offset)
-
-            return f"{delta} ago ({created.strftime('%H:%M:%S')})"
-
-        created = await timestamp(member.created_at)
-        joined = await timestamp(member.joined_at)
-        member_info = f'**Joined** {joined}\n'
-
-        for n, i in enumerate(reversed(member.roles)):
-            if i != ctx.guild.default_role:
-                if n == 0:
-                    member_info += '**Roles**: '
-                member_info += i.name
-                if n != len(member.roles) - 2:
-                    member_info += ', '
-                else:
-                    member_info += '\n'
-
-        em = discord.Embed(color=member.color)
-        em.set_author(name=member, icon_url=member.avatar_url)
-        em.add_field(name='Basic Information', value=f'**ID**: {member.id}\n**Nickname**: {member.nick}\n**Mention**: {member.mention}\n**Created** {created}', inline=False)
-        em.add_field(name='Member Information', value=member_info, inline=False)
-        await ctx.send(embed=em)
-
     @group(6, invoke_without_command=True)
     async def note(self, ctx):
         """Manage notes."""
@@ -181,7 +151,7 @@ class Moderation(commands.Cog):
 
     @group(6, invoke_without_command=True, usage='')
     async def warn(self, ctx, member=None, *, reason=None):
-        """Manage warns."""
+        """Warn a user, with a specific reason."""
         try:
             member = await MemberOrID().convert(ctx, member)
         except commands.BadArgument:
