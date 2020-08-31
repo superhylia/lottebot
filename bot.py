@@ -90,9 +90,9 @@ class rainbot(commands.Bot):
         self.logger.info('Ready')
         self.logger.debug('Debug mode ON: Prefix ./')
 
-    async def on_ready(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help")):
-        await bot.change_presence()
-
+bot = commands.Bot(activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
+    async def on_ready():
+    
     async def on_command_error(self, ctx, e):
         e = getattr(e, 'original', e)
         ignored = (
