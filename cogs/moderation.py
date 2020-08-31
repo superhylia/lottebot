@@ -386,8 +386,8 @@ class Moderation(commands.Cog):
             else:
                 await ctx.send(f'Disabled slowmode in {channel.mention}.')
 
-    @command(7)
-    async def kick(self, ctx, member: discord.Member, *, reason=None, aliases=['boot', 'punt']):
+    @command(7, aliases=['boot', 'punt'])
+    async def kick(self, ctx, member: discord.Member, *, reason=None):
         """Kicks a user from the server."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
             await ctx.send('User has insufficient permissions')
@@ -397,8 +397,8 @@ class Moderation(commands.Cog):
                 await ctx.send(self.bot.accept)
             await self.send_log(ctx, member, reason)
 
-    @command(7)
-    async def softban(self, ctx, member: discord.Member, *, reason=None, aliases=['hardkick']):
+    @command(7, aliases=['hardkick'])
+    async def softban(self, ctx, member: discord.Member, *, reason=None):
         """Kicks the user while deleting their messages."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
             await ctx.send('The user has insufficient permissions.')
@@ -409,7 +409,7 @@ class Moderation(commands.Cog):
             await ctx.send(self.bot.accept)
             await self.send_log(ctx, member, reason)
 
-    @command(7)
+    @command(7, aliases=['hammertime'])
     async def ban(self, ctx, member: MemberOrID, *, reason=None):
         """Swings the banhammer on those who don't comply."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
@@ -419,7 +419,7 @@ class Moderation(commands.Cog):
             await ctx.send(self.bot.accept)
             await self.send_log(ctx, member, reason)
 
-    @command(7)
+    @command(7, aliases=['unhammertime'])
     async def unban(self, ctx, member: MemberOrID, *, reason=None):
         """Unswing the mighty banhammer on those who have changed their ways."""
         await ctx.guild.unban(member, reason=reason)
