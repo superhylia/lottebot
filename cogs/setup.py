@@ -63,7 +63,7 @@ class Setup(commands.Cog):
 
     @command(10, alises=['set_log', 'set-log'])
     async def setlog(self, ctx, log_name: lower, channel: discord.TextChannel=None):
-        """Sets the log channel for various types of logging
+        """Sets the log channel for various types of logging.
 
         Valid types: all, message_delete, message_edit, member_join, member_remove, member_ban, member_unban, vc_state_change, channel_create, channel_delete, role_create, role_delete
         """
@@ -71,7 +71,7 @@ class Setup(commands.Cog):
         channel_id = None
         if channel:
             try:
-                await channel.send('Testing the logs')
+                await channel.send('Testing the logs!')
             except discord.Forbidden:
                 raise BotMissingPermissionsInChannel(['send_messages'], channel)
             channel_id = str(channel.id)
@@ -88,14 +88,14 @@ class Setup(commands.Cog):
 
     @command(10, alises=['set_modlog', 'set-modlog'])
     async def setmodlog(self, ctx, log_name: lower, channel: discord.TextChannel=None):
-        """Sets the log channel for various types of logging
+        """Sets the modlog channel for various types of logging.
 
         Valid types: all, member_warn, member_mute, member_unmute, member_kick, member_ban, member_unban, member_softban, message_purge, channel_lockdown, channel_slowmode
         """
         channel_id = None
         if channel:
             try:
-                await channel.send('Testing the logs')
+                await channel.send('Testing the logs!')
             except discord.Forbidden:
                 raise BotMissingPermissionsInChannel(['send_messages'], channel)
             channel_id = str(channel.id)
@@ -111,9 +111,9 @@ class Setup(commands.Cog):
             await self.bot.db.update_guild_config(ctx.guild.id, {'$set': {f'modlog.{log_name}': channel_id}})
         await ctx.send(self.bot.accept)
 
-    @command(10, aliases=['set_perm_level', 'set-perm-level'])
-    async def setpermlevel(self, ctx, perm_level: int, *, role: discord.Role):
-        """Sets a role's permission level"""
+    @command(10, aliases=['set_perm_level', 'set-perm-level', 'setpermlevel', 'roleperms'])
+    async def levelperms(self, ctx, perm_level: int, *, role: discord.Role):
+        """Sets a role's permission level."""
         if perm_level < 0:
             raise commands.BadArgument(f'{perm_level} is below 0')
 
@@ -123,13 +123,13 @@ class Setup(commands.Cog):
             await self.bot.db.update_guild_config(ctx.guild.id, {'$push': {'perm_levels': {'role_id': str(role.id), 'level': perm_level}}})
         await ctx.send(self.bot.accept)
 
-    @command(10, aliases=['set_command_level', 'set-command-level'])
-    async def setcommandlevel(self, ctx, perm_level: typing.Union[int, str], *, command: lower):
-        """Changes a command's required permission level
+    @command(10, aliases=['set_command_level', 'set-command-level', 'setcommandlevel'])
+    async def commandperms(self, ctx, perm_level: typing.Union[int, str], *, command: lower):
+        """Changes a command's required permission levels.
 
         Examples:
-        - !!setcommandlevel reset ban
-        - !!setcommandlevel 8 warn add
+        - [p]commandperms reset ban
+        - [p]commandperms 8 warn add
         """
         if isinstance(perm_level, int) and (perm_level < 0 or perm_level > 15):
             raise commands.BadArgument(f'{perm_level} is an invalid level, valid levels: 0-15 or reset')
@@ -139,10 +139,10 @@ class Setup(commands.Cog):
 
         cmd = self.bot.get_command(command)
         if not cmd:
-            raise commands.BadArgument(f'No command with name "{command}" found')
+            raise commands.BadArgument(f'No command with name "{command}" found.')
 
         if isinstance(cmd, RainGroup):
-            raise commands.BadArgument('Cannot override a command group')
+            raise commands.BadArgument('Cannot override a command group.')
 
         name = cmd.qualified_name.replace(' ', '_')
 
@@ -194,9 +194,9 @@ class Setup(commands.Cog):
         await self.bot.db.update_guild_config(ctx.guild.id, {'$set': {'time_offset': offset}})
         await ctx.send(self.bot.accept)
 
-    @command(10, aliases=['set_detection', 'set-detection'])
-    async def setdetection(self, ctx, detection_type: lower, value):
-        """Sets or toggle the auto moderation types
+    @command(10, aliases=['set_detection', 'set-detection', 'setdetection'])
+    async def automod(self, ctx, detection_type: lower, value):
+        """Sets or toggle the auto moderation types.
 
         Valid types: block_invite, english_only, mention_limit, spam_detection, repetitive_message
         """
@@ -230,12 +230,12 @@ class Setup(commands.Cog):
 
         await ctx.send(self.bot.accept)
 
-    @command(10, aliases=['set-detection-ignore', 'set_detection_ignore'])
-    async def setdetectionignore(self, ctx, detection_type: lower, channel: discord.TextChannel=None):
-        """Ignores detections in specified channels
+    @command(10, aliases=['set-detection-ignore', 'set_detection_ignore', 'setdetectionignore'])
+    async def automodignore(self, ctx, detection_type: lower, channel: discord.TextChannel=None):
+        """Ignores detections in specified channels./
 
         Valid detections: all, filter, block_invite, english_only, mention_limit, spam_detection, repetitive_message
-        Run without specifying channel to clear ignored channels
+        Run without specifying channel to clear ignored channels.
         """
         valid_detections = list(DEFAULT['ignored_channels'].keys())
 
@@ -258,38 +258,38 @@ class Setup(commands.Cog):
 
     @group(8, name='filter', invoke_without_command=True)
     async def filter_(self, ctx):
-        """Controls the word filter"""
+        """Controls the word filter."""
         await ctx.invoke(self.bot.get_command('help'), command_or_cog='filter')
 
     @filter_.command(8)
     async def add(self, ctx, *, word: lower):
-        """Add blacklisted words into the word filter"""
+        """Add blacklisted words into the word filter."""
         await self.bot.db.update_guild_config(ctx.guild.id, {'$push': {'detections.filters': word}})
         await ctx.send(self.bot.accept)
 
     @filter_.command(8)
     async def remove(self, ctx, *, word: lower):
-        """Removes blacklisted words from the word filter"""
+        """Removes blacklisted words from the word filter."""
         await self.bot.db.update_guild_config(ctx.guild.id, {'$pull': {'detections.filters': word}})
         await ctx.send(self.bot.accept)
 
     @filter_.command(8, name='list')
     async def list_(self, ctx):
-        """Lists the full word filter"""
+        """Lists the full word filter."""
         guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
         await ctx.send(f"Filters: {', '.join([f'`{i}`' for i in guild_config.detections.filters])}")
 
     @command(10, aliases=['set-warn-punishment', 'set_warn_punishment'])
     async def setwarnpunishment(self, ctx, limit: int, punishment=None):
         """Sets punishment after certain number of warns.
-        Punishments can be "kick", "ban" or "none".
+        Punishments can be "kick", "ban" , "mute", or "none".
 
         Example: !!setwarnpunishment 5 kick
 
-        It is highly encouraged to add a final "ban" condition
+        It is highly encouraged to add a final "ban" condition.
         """
-        if punishment not in ('kick', 'ban', 'none'):
-            raise commands.BadArgument('Invalid punishment, pick from `kick`, `ban`, `none`.')
+        if punishment not in ('kick', 'ban', 'mute', 'none'):
+            raise commands.BadArgument('Invalid punishment, pick from `kick`, `ban`, `mute`, `none`.')
 
         if punishment == 'none' or punishment is None:
             await self.bot.db.update_guild_config(ctx.guild.id, {'$pull': {'warn_punishments': {'warn_number': limit}}})
