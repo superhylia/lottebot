@@ -17,7 +17,7 @@ from ext.database import DatabaseManager
 from ext.state import ConnState
 from ext.utils import format_timedelta
 
-bot = commands.Bot(command_prefix=None, activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
+bot = commands.Bot(command_prefix=None, activity=bot.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
 
 class rainbot(commands.Bot):
     def __init__(self):
