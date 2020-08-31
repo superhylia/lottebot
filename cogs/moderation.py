@@ -29,7 +29,7 @@ class MemberOrID(commands.MemberConverter):
 
 
 class Moderation(commands.Cog):
-    """Basic moderation commands"""
+    """The basic moderation commands."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -87,8 +87,8 @@ class Moderation(commands.Cog):
             pass
 
     @command(5)
-    async def user(self, ctx, member: discord.Member):
-        """Get a user's info"""
+    async def userinfo(self, ctx, member: discord.Member):
+        """Get a user's info."""
         async def timestamp(created):
             delta = format_timedelta(ctx.message.created_at - created)
             guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
@@ -118,12 +118,12 @@ class Moderation(commands.Cog):
 
     @group(6, invoke_without_command=True)
     async def note(self, ctx):
-        """Manage notes"""
+        """Manage notes."""
         await ctx.invoke(self.bot.get_command('help'), command_or_cog='note')
 
     @note.command(6)
     async def add(self, ctx, member: MemberOrID, *, note):
-        """Add a note"""
+        """Add a note for a user."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
             await ctx.send('User has insufficient permissions')
         else:
@@ -149,7 +149,7 @@ class Moderation(commands.Cog):
 
     @note.command(6, aliases=['delete', 'del'])
     async def remove(self, ctx, case_number: int):
-        """Remove a note"""
+        """Remove a note."""
         guild_data = await self.bot.db.get_guild_config(ctx.guild.id)
         notes = guild_data.notes
         note = list(filter(lambda w: w['case_number'] == case_number, notes))
@@ -159,9 +159,9 @@ class Moderation(commands.Cog):
             await self.bot.db.update_guild_config(ctx.guild.id, {'$pull': {'notes': note[0]}})
             await ctx.send(self.bot.accept)
 
-    @note.command(6, name='list', aliases=['view'])
+    @note.command(6, name='list', aliases=['view', 'logs'])
     async def _list(self, ctx, member: MemberOrID):
-        """View the notes of a user"""
+        """View the notes of a user."""
         guild_data = await self.bot.db.get_guild_config(ctx.guild.id)
         notes = guild_data.notes
         notes = list(filter(lambda w: w['member_id'] == str(member.id), notes))
@@ -181,7 +181,7 @@ class Moderation(commands.Cog):
 
     @group(6, invoke_without_command=True, usage='')
     async def warn(self, ctx, member=None, *, reason=None):
-        """Manage warns"""
+        """Manage warns."""
         try:
             member = await MemberOrID().convert(ctx, member)
         except commands.BadArgument:
@@ -192,7 +192,7 @@ class Moderation(commands.Cog):
 
     @warn.command(6, name='add')
     async def add_(self, ctx, member: MemberOrID, *, reason):
-        """Warn a user
+        """Warn a user, with a specific reason..
 
         Can also be used as `warn <member> [reason]`"""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
@@ -209,7 +209,7 @@ class Moderation(commands.Cog):
 
             try:
                 num_warns = len(warns) + 1
-                fmt = f'You have been warned in **{ctx.guild.name}**, reason: {reason}. This is warning #{num_warns}.'
+                fmt = f'You have been warned in **{ctx.guild.name}** for: {reason}. This is warning #{num_warns}.'
 
                 if warn_punishments:
                     punishments = list(filter(lambda x: int(x) == num_warns, warn_punishment_limits))
@@ -221,7 +221,7 @@ class Moderation(commands.Cog):
                             cmd = warn_punishments.get_kv('warn_number', closest).punishment
                             if cmd == 'ban':
                                 cmd = 'bann'
-                            fmt += f' You will be {cmd}ed on warning {closest}.'
+                            fmt += f' You will be {cmd}ed on warning #{closest}.'
                     else:
                         punish = True
                         cmd = warn_punishments.get_kv('warn_number', max(map(int, punishments))).punishment
@@ -232,7 +232,7 @@ class Moderation(commands.Cog):
                 await member.send(fmt)
             except discord.Forbidden:
                 if ctx.author != ctx.guild.me:
-                    await ctx.send('The user has PMs disabled or blocked the bot.')
+                    await ctx.send('The user has DMs disabled or has blocked the bot.')
             finally:
                 guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
                 current_date = (ctx.message.created_at + timedelta(hours=guild_config.time_offset)).strftime('%Y-%m-%d')
@@ -260,9 +260,9 @@ class Moderation(commands.Cog):
                     ctx.author = ctx.guild.me
                     await ctx.invoke(ctx.command, member, reason=f'Hit warn limit {num_warns}')
 
-    @warn.command(6, name='remove', aliases=['delete', 'del'])
+    @warn.command(6, name='remove', aliases=['delete', 'del', 'unwarn'])
     async def remove_(self, ctx, case_number: int):
-        """Remove a warn"""
+        """Remove a warn from a user,"""
         guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
         warns = guild_config.warns
         warn = list(filter(lambda w: w['case_number'] == case_number, warns))[0]
@@ -275,9 +275,9 @@ class Moderation(commands.Cog):
             await ctx.send(self.bot.accept)
             await self.send_log(ctx, case_number, warn_reason)
 
-    @warn.command(6, name='list', aliases=['view'])
+    @warn.command(6, name='list', aliases=['view', 'logs'])
     async def list_(self, ctx, member: MemberOrID):
-        """View the warns of a user"""
+        """View the warns of a user."""
         guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
         warns = guild_config.warns
         warns = list(filter(lambda w: w['member_id'] == str(member.id), warns))
@@ -295,11 +295,11 @@ class Moderation(commands.Cog):
 
             await ctx.send(fmt)
 
-    @command(6, usage='<member> <duration> <reason>')
+    @command(6, usage='<member> <duration> <reason>', aliases=['silence'])
     async def mute(self, ctx, member: discord.Member, *, time: UserFriendlyTime(default='No reason', assume_reason=True)=None):
-        """Mutes a user"""
+        """Mutes a user, with a specific duration and reason."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
-            await ctx.send('User has insufficient permissions')
+            await ctx.send('The user has insufficient permissions.')
         else:
             duration = None
             reason = None
@@ -314,17 +314,17 @@ class Moderation(commands.Cog):
             await ctx.send(self.bot.accept)
 
     @command(6)
-    async def unmute(self, ctx, member: discord.Member, *, reason='No reason'):
-        """Unmutes a user"""
+    async def unmute(self, ctx, member: discord.Member, *, reason='No reason', aliases=['unsilence']):
+        """Unmutes a user who was previously muted, with a specific reason."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
-            await ctx.send('User has insufficient permissions')
+            await ctx.send('The user has insufficient permissions.')
         else:
             await self.bot.unmute(ctx.guild.id, member.id, None, reason=reason)
             await ctx.send(self.bot.accept)
 
-    @command(6, aliases=['clean', 'prune'])
+    @command(6, aliases=['clean', 'prune', 'clear'])
     async def purge(self, ctx, limit: int, *, member: MemberOrID=None):
-        """Deletes messages in bulk"""
+        """Deletes a number of messages in bulk."""
         count = min(2000, limit)
         await ctx.message.delete()
 
@@ -359,34 +359,35 @@ class Moderation(commands.Cog):
         await ctx.send(f'Deleted {limit - count} messages', delete_after=3)
         await self.send_log(ctx, limit - count, member)
 
-    @command(6)
+    @command(6, aliases=['lock', 'closedown'])
     async def lockdown(self, ctx, channel: discord.TextChannel=None):
+        """Locks a channel and prevents people from typing."""
         channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
 
         if overwrite.send_messages is None or overwrite.send_messages:
             overwrite.send_messages = False
             await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-            await ctx.send(f'Lockdown {self.bot.accept}')
+            await ctx.send(f'The channel has been locked. {self.bot.accept}')
             enable = True
         else:
             # dont change to "not overwrite.send_messages"
             overwrite.send_messages = None
             await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-            await ctx.send(f'Un-lockdown {self.bot.accept}')
+            await ctx.send(f'The channel has been unlocked. {self.bot.accept}')
             enable = False
 
         await self.send_log(ctx, enable, channel)
 
     @command(6, usage='[duration] [channel]')
     async def slowmode(self, ctx, *, time: UserFriendlyTime(converter=commands.TextChannelConverter, default=False, assume_reason=True)):
-        """Enables slowmode, max 6h
+        """Enables slowmode in the specified channel. Max. 6h period.
 
         Examples:
-        !!slowmode 2h
-        !!slowmode 2h #general
-        !!slowmode off
-        !!slowmode 0s #general
+        ?slowmode 2h
+        ?slowmode 2h #general
+        ?slowmode off
+        ?slowmode 0s #general
         """
         duration = timedelta()
         channel = ctx.channel
@@ -405,19 +406,19 @@ class Moderation(commands.Cog):
         seconds = int(duration.total_seconds())
 
         if seconds > 21600:
-            await ctx.send('Slowmode only supports up to 6h max at the moment')
+            await ctx.send('Slowmode only supports up to 6h max. at the moment')
         else:
             fmt = format_timedelta(duration, assume_forever=False)
             await channel.edit(slowmode_delay=int(duration.total_seconds()))
             await self.send_log(ctx, channel, fmt)
             if duration.total_seconds():
-                await ctx.send(f'Enabled `{fmt}` slowmode on {channel.mention}')
+                await ctx.send(f'Enabled `{fmt}` slowmode in {channel.mention}.')
             else:
-                await ctx.send(f'Disabled slowmode on {channel.mention}')
+                await ctx.send(f'Disabled slowmode in {channel.mention}.')
 
     @command(7)
-    async def kick(self, ctx, member: discord.Member, *, reason=None):
-        """Kicks a user"""
+    async def kick(self, ctx, member: discord.Member, *, reason=None, aliases=['boot', 'punt']):
+        """Kicks a user from the server."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
             await ctx.send('User has insufficient permissions')
         else:
@@ -427,10 +428,10 @@ class Moderation(commands.Cog):
             await self.send_log(ctx, member, reason)
 
     @command(7)
-    async def softban(self, ctx, member: discord.Member, *, reason=None):
-        """Swings the banhammer"""
+    async def softban(self, ctx, member: discord.Member, *, reason=None, aliases=['hardkick']):
+        """Kicks the user while deleting their messages."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
-            await ctx.send('User has insufficient permissions')
+            await ctx.send('The user has insufficient permissions.')
         else:
             await member.ban(reason=reason)
             await asyncio.sleep(2)
@@ -440,9 +441,9 @@ class Moderation(commands.Cog):
 
     @command(7)
     async def ban(self, ctx, member: MemberOrID, *, reason=None):
-        """Swings the banhammer"""
+        """Swings the banhammer on those who don't comply."""
         if get_perm_level(member, await self.bot.db.get_guild_config(ctx.guild.id))[0] >= get_perm_level(ctx.author, await self.bot.db.get_guild_config(ctx.guild.id))[0]:
-            await ctx.send('User has insufficient permissions')
+            await ctx.send('The user has insufficient permissions.')
         else:
             await ctx.guild.ban(member, reason=reason)
             await ctx.send(self.bot.accept)
@@ -450,7 +451,7 @@ class Moderation(commands.Cog):
 
     @command(7)
     async def unban(self, ctx, member: MemberOrID, *, reason=None):
-        """Unswing the banhammer"""
+        """Unswing the mighty banhammer on those who have changed their ways."""
         await ctx.guild.unban(member, reason=reason)
         await ctx.send(self.bot.accept)
         await self.send_log(ctx, member, reason)
