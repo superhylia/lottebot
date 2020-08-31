@@ -9,7 +9,7 @@ from time import time
 
 import aiohttp
 from discord.ext import commands
-from discord.ext import commands import bot
+from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
 from ext import errors
