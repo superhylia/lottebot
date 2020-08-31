@@ -13,15 +13,15 @@ class Tags(commands.Cog):
 
     @group(6, invoke_without_command=True)
     async def tag(self, ctx):
-        """Controls tags in your server"""
+        """Configure tags in your server."""
         await ctx.invoke(self.bot.get_command('help'), command_or_cog='tag')
 
     @tag.command(6)
-    async def create(self, ctx, name, *, value: commands.clean_content=None):
+    async def create(self, ctx, name, *, value: commands.clean_content=None, aliases=['add', 'make', '+']):
         """Create tags for your server.
 
         Example: tag create hello Hi! I am the bot responding!
-        Complex usage: https://github.com/fourjr/rainbot/wiki/Tags
+        Complex usage for variables: https://github.com/fourjr/rainbot/wiki/Tags
         """
         if value.startswith('http'):
             if value.startswith('https://hasteb.in') and 'raw' not in value:
@@ -31,28 +31,28 @@ class Tags(commands.Cog):
                 value = await resp.text()
 
         if name in [i.qualified_name for i in self.bot.commands]:
-            await ctx.send('Name is already a pre-existing bot command')
+            await ctx.send('That name is already a pre-existing tag/command.')
         else:
             await self.bot.db.update_guild_config(ctx.guild.id, {'$push': {'tags': {'name': name, 'value': value}}})
             await ctx.send(self.bot.accept)
 
     @tag.command(6)
-    async def remove(self, ctx, name):
-        """Removes a tag"""
+    async def remove(self, ctx, name, aliases=['delete', 'del', '-']):
+        """Removes a tag from the server."""
         await self.bot.db.update_guild_config(ctx.guild.id, {'$pull': {'tags': {'name': name}}})
 
         await ctx.send(self.bot.accept)
 
     @tag.command(6, name='list')
-    async def list_(self, ctx):
-        """Lists all tags"""
+    async def list_(self, ctx, aliases=['tags', 'dump', 'all']):
+        """Lists all tags."""
         guild_config = await self.bot.db.get_guild_config(ctx.guild.id)
         tags = [i.name for i in guild_config.tags]
 
         if tags:
             await ctx.send('Tags: ' + ', '.join(tags))
         else:
-            await ctx.send('No tags saved')
+            await ctx.send('No tags saved.')
 
     @commands.Cog.listener()
     async def on_message(self, message):
