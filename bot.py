@@ -19,9 +19,6 @@ from ext.utils import format_timedelta
 
 bot = commands.Bot(command_prefix=None, activity=discord.Activity(type=discord.ActivityType.watching, name="over the server! • !help"))
 
-
-bot.loop.create_task(startup())
-
 class rainbot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=None)
