@@ -329,7 +329,20 @@ class Moderation(commands.Cog):
         await ctx.send(f'Deleted {limit - count} messages', delete_after=3)
         await self.send_log(ctx, limit - count, member)
  
-    @command(6, aliases=['lock', 'closedown', 'unlock', 'unlockdown'])
+    @group(6, invoke_without_command=True)
+    async def lockdown(self, ctx, channel: discord.TextChannel=None):
+        """Lockdown channels or the server."""
+        await ctx.invoke(self.bot.get_command('help'), command_or_cog='lockdown')
+        try:
+            channel = await channel or ctx.channel
+        except commands.BadArgument:
+            await ctx.invoke(self.bot.get_command('help'), command_or_cog='lockdown')
+        else:
+            ctx.command = self.add_
+            await ctx.invoke(self.add_, channel: discord.TextChannel=TextChannel)
+
+
+    @lockdown.command(6, aliases=['lock', 'closedown', 'unlock', 'unlockdown'])
     async def lockdown(self, ctx, channel: discord.TextChannel=None):
         """Lock/unlock a specified channel."""
         channel = channel or ctx.channel
